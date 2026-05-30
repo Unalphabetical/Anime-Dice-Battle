@@ -130,4 +130,8 @@ RemoteEvent.OnServerEvent:Connect(function(player, method, ...)
 	end
 end)
 
-return true
+return {
+	giveItem = giveItem,
+	removeItem = removeItem,
+	playerData = playerData,
+}

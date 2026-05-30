@@ -1,1 +1,2 @@
-require(script.InventoryHandler)
+local InventoryHandler = require(script.InventoryHandler)
+require(script.ShopHandler)
