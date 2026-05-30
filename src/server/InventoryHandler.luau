@@ -153,6 +153,17 @@ RemoteEvent.OnServerEvent:Connect(function(player, method, ...)
 				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateItem, itemId, data.inventory[itemId])
 			end
 		end
+	elseif method == InventoryTypes.Methods.SwapHotbarSlots then
+		if not data then return end
+		local slotA, slotB = ...
+		if slotA and slotB and slotA >= 1 and slotA <= InventoryTypes.HOTBAR_SLOTS
+			and slotB >= 1 and slotB <= InventoryTypes.HOTBAR_SLOTS and slotA ~= slotB then
+			local temp = data.hotbar[slotA]
+			data.hotbar[slotA] = data.hotbar[slotB]
+			data.hotbar[slotB] = temp
+			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotA, data.hotbar[slotA])
+			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotB, data.hotbar[slotB])
+		end
 	end
 end)
 

@@ -535,7 +535,11 @@ local function setupInput()
 					if mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X
 						and mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y then
 						if dragItemId then
-							RemoteEvent:FireServer(InventoryTypes.Methods.UpdateHotbarSlot, i, dragItemId)
+							if dragSource == "hotbar" and dragSlotIndex then
+								RemoteEvent:FireServer(InventoryTypes.Methods.SwapHotbarSlots, dragSlotIndex, i)
+							else
+								RemoteEvent:FireServer(InventoryTypes.Methods.UpdateHotbarSlot, i, dragItemId)
+							end
 						end
 						break
 					end
@@ -559,7 +563,7 @@ local function setupInput()
 				dragPreview.Visible = false
 			end
 
-			if not processedDrop then
+			if not processedDrop and inventoryOpen then
 				for i, slotFrame in slots do
 					local absPos = slotFrame.AbsolutePosition
 					local absSize = slotFrame.AbsoluteSize

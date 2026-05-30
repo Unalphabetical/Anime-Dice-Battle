@@ -31,6 +31,7 @@ local Methods = {
 	GetHotbar = "GetHotbar",
 	UpdateHotbarSlot = "UpdateHotbarSlot",
 	ReturnToInventory = "ReturnToInventory",
+	SwapHotbarSlots = "SwapHotbarSlots",
 }
 
 local ITEM_DEFS: ItemDefs = {
