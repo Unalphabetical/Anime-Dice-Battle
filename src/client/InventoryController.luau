@@ -26,6 +26,8 @@ local inventoryGrid: ScrollingFrame
 local dragPreview: Frame
 local isDragging = false
 local dragItemId: string? = nil
+local dragSource: string? = nil
+local dragSlotIndex: number? = nil
 
 local COLORS = {
 	background = Color3.fromRGB(25, 25, 35),
@@ -296,6 +298,8 @@ local function rebuildInventoryPanel()
 
 		buttonRegion.MouseButton1Down:Connect(function()
 			isDragging = true
+			dragSource = "inventory"
+			dragSlotIndex = nil
 			dragItemId = itemId
 			dragPreview.Visible = true
 			local display = getItemDisplay(itemId)
@@ -518,8 +522,11 @@ local function setupInput()
 		end
 
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			local mousePos = Vector2.new(mouse.X, mouse.Y)
+			local processedDrop = false
+
 			if isDragging then
-				local mousePos = Vector2.new(mouse.X, mouse.Y)
+				processedDrop = true
 
 				for i, slotFrame in slots do
 					local absPos = slotFrame.AbsolutePosition
@@ -534,9 +541,47 @@ local function setupInput()
 					end
 				end
 
+				if dragSource == "hotbar" and inventoryOpen then
+					local invPos = inventoryPanel.AbsolutePosition
+					local invSize = inventoryPanel.AbsoluteSize
+					if mousePos.X >= invPos.X and mousePos.X <= invPos.X + invSize.X
+						and mousePos.Y >= invPos.Y and mousePos.Y <= invPos.Y + invSize.Y then
+						if dragItemId and dragSlotIndex then
+							RemoteEvent:FireServer(InventoryTypes.Methods.ReturnToInventory, dragSlotIndex, dragItemId)
+						end
+					end
+				end
+
 				isDragging = false
+				dragSource = nil
 				dragItemId = nil
+				dragSlotIndex = nil
 				dragPreview.Visible = false
+			end
+
+			if not processedDrop then
+				for i, slotFrame in slots do
+					local absPos = slotFrame.AbsolutePosition
+					local absSize = slotFrame.AbsoluteSize
+					if mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X
+						and mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y then
+						local slotData = hotbar[i]
+						if slotData then
+							isDragging = true
+							dragSource = "hotbar"
+							dragSlotIndex = i
+							dragItemId = slotData.itemId
+							dragPreview.Visible = true
+							local display = getItemDisplay(slotData.itemId)
+							dragPreview.BackgroundColor3 = display.color
+							local dragLabel = dragPreview:FindFirstChild("DragLabel")
+							if dragLabel then
+								dragLabel.Text = display.name
+							end
+						end
+						break
+					end
+				end
 			end
 		end
 	end)
