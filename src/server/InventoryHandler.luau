@@ -59,12 +59,6 @@ local function removeItem(player: Player, itemId: string, quantity: number)
 	entry.quantity -= quantity
 	if entry.quantity <= 0 then
 		data.inventory[itemId] = nil
-		for i, id in data.hotbar do
-			if id == itemId then
-				data.hotbar[i] = nil
-				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, i, nil)
-			end
-		end
 		RemoteEvent:FireClient(player, InventoryTypes.Methods.RemoveItem, itemId)
 	else
 		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateItem, itemId, data.inventory[itemId])
@@ -74,21 +68,21 @@ end
 local function useItem(player: Player, slotIndex: number)
 	local data = getPlayerData(player)
 	if not data then return end
-	local itemId = data.hotbar[slotIndex]
-	if not itemId then return end
-	local entry = data.inventory[itemId]
-	if not entry or entry.quantity <= 0 then
+	local slotData = data.hotbar[slotIndex]
+	if not slotData then return end
+
+	slotData.quantity -= 1
+	if slotData.quantity <= 0 then
 		data.hotbar[slotIndex] = nil
 		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotIndex, nil)
-		return
+	else
+		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotIndex, slotData)
 	end
 
-	local effect = itemEffects[itemId]
+	local effect = itemEffects[slotData.itemId]
 	if effect then
 		effect(player)
 	end
-
-	removeItem(player, itemId, 1)
 end
 
 local function setupPlayer(player: Player)
@@ -99,7 +93,7 @@ local function setupPlayer(player: Player)
 	playerData[player.UserId] = data
 
 	for i = 1, InventoryTypes.HOTBAR_SLOTS do
-		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, i, data.hotbar[i])
+		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, i, nil)
 	end
 end
 
@@ -122,10 +116,23 @@ RemoteEvent.OnServerEvent:Connect(function(player, method, ...)
 			RemoteEvent:FireClient(player, InventoryTypes.Methods.GetHotbar, data.hotbar)
 		end
 	elseif method == InventoryTypes.Methods.UpdateHotbarSlot then
+		if not data then return end
 		local slot, itemId = ...
-		if slot and slot >= 1 and slot <= InventoryTypes.HOTBAR_SLOTS then
-			data.hotbar[slot] = itemId
-			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slot, itemId)
+		if slot and slot >= 1 and slot <= InventoryTypes.HOTBAR_SLOTS and itemId then
+			local invEntry = data.inventory[itemId]
+			if invEntry and invEntry.quantity > 0 then
+				local moveQty = invEntry.quantity
+				data.inventory[itemId] = nil
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.RemoveItem, itemId)
+
+				local slotData = data.hotbar[slot]
+				if slotData and slotData.itemId == itemId then
+					slotData.quantity += moveQty
+				else
+					data.hotbar[slot] = { itemId = itemId, quantity = moveQty }
+				end
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slot, data.hotbar[slot])
+			end
 		end
 	end
 end)

@@ -4,7 +4,12 @@ export type ItemEntry = {
 
 export type Inventory = {[string]: ItemEntry}
 
-export type Hotbar = {[number]: string?}
+export type HotbarSlot = {
+	itemId: string,
+	quantity: number,
+}
+
+export type Hotbar = {[number]: HotbarSlot?}
 
 export type ItemDef = {
 	name: string,

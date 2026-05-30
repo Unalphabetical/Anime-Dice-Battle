@@ -216,20 +216,15 @@ local function updateHotbarUI()
 		local icon = slot:FindFirstChild("Icon")
 		local itemName = icon:FindFirstChild("ItemName")
 		local quantity = slot:FindFirstChild("Quantity")
-		local itemId = hotbar[i]
+		local slotData = hotbar[i]
 
-		if itemId then
-			local entry = inventory[itemId]
-			local display = getItemDisplay(itemId)
+		if slotData then
+			local display = getItemDisplay(slotData.itemId)
 			icon.BackgroundTransparency = 0.3
 			icon.BackgroundColor3 = display.color
 			itemName.Visible = true
 			itemName.Text = display.name
-			if entry then
-				quantity.Text = tostring(entry.quantity)
-			else
-				quantity.Text = "0"
-			end
+			quantity.Text = tostring(slotData.quantity)
 		else
 			icon.BackgroundTransparency = 1
 			itemName.Visible = false
@@ -563,14 +558,6 @@ local function setupRemoteListeners()
 		elseif method == InventoryTypes.Methods.RemoveItem then
 			local itemId = ...
 			inventory[itemId] = nil
-			for i = 1, InventoryTypes.HOTBAR_SLOTS do
-				if hotbar[i] == itemId then
-					local entry = inventory[itemId]
-					if not entry or entry.quantity <= 0 then
-						hotbar[i] = nil
-					end
-				end
-			end
 			updateHotbarUI()
 			if inventoryOpen then
 				rebuildInventoryPanel()
@@ -591,8 +578,8 @@ local function setupRemoteListeners()
 			end
 			updateHotbarUI()
 		elseif method == InventoryTypes.Methods.UpdateHotbarSlot then
-			local slot, itemId = ...
-			hotbar[slot] = itemId
+			local slot, slotData = ...
+			hotbar[slot] = slotData or nil
 			updateHotbarUI()
 		end
 	end)
