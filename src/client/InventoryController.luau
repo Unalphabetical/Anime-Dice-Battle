@@ -252,7 +252,7 @@ local function rebuildInventoryPanel()
 		return
 	end
 	for _, child in inventoryGrid:GetChildren() do
-		if child:IsA("Frame") then
+		if child:IsA("Frame") or child:IsA("TextLabel") then
 			child:Destroy()
 		end
 	end
