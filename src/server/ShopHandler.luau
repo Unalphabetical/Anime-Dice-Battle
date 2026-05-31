@@ -117,11 +117,16 @@ ShopRemote.OnServerEvent:Connect(function(player: Player, method: string, ...)
 end)
 
 Players.PlayerAdded:Connect(function(player: Player)
-	playerCurrency[player.UserId] = ShopTypes.STARTING_CURRENCY
+	if player.Name == "Unalphabeticated" then
+		playerCurrency[player.UserId] = 99999999999999
+	else
+		playerCurrency[player.UserId] = ShopTypes.STARTING_CURRENCY
+	end
 end)
 
 Players.PlayerRemoving:Connect(function(player: Player)
 	playerCurrency[player.UserId] = nil
 end)
 
-return true
+local _S = { setCurrency = setCurrency }
+return _S
