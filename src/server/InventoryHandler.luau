@@ -2,10 +2,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
 local InventoryTypes = require(ReplicatedStorage.Shared.InventoryTypes)
+local CharacterTypes = require(ReplicatedStorage.Shared.CharacterTypes)
 
 local RemoteEvent = Instance.new("RemoteEvent")
 RemoteEvent.Name = InventoryTypes.REMOTE_EVENT_NAME
 RemoteEvent.Parent = ReplicatedStorage
+
+local SummonRemote = Instance.new("RemoteEvent")
+SummonRemote.Name = CharacterTypes.SUMMON_REMOTE_NAME
+SummonRemote.Parent = ReplicatedStorage
 
 local playerData: {[number]: {
 	inventory: InventoryTypes.Inventory,
@@ -65,11 +70,25 @@ local function removeItem(player: Player, itemId: string, quantity: number)
 	end
 end
 
+local function trySummon(player: Player)
+	local charDef = CharacterTypes.rollCharacter()
+	if charDef then
+		giveItem(player, charDef.id, 1)
+		SummonRemote:FireClient(player, CharacterTypes.SUMMON_METHODS.SummonResult, charDef)
+	end
+end
+
 local function useItem(player: Player, slotIndex: number)
 	local data = getPlayerData(player)
 	if not data then return end
 	local slotData = data.hotbar[slotIndex]
 	if not slotData then return end
+
+	local itemId = slotData.itemId
+
+	if string.find(itemId, "char_") == 1 then
+		return
+	end
 
 	slotData.quantity -= 1
 	if slotData.quantity <= 0 then
@@ -79,9 +98,10 @@ local function useItem(player: Player, slotIndex: number)
 		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotIndex, slotData)
 	end
 
-	local effect = itemEffects[slotData.itemId]
+	local effect = itemEffects[itemId]
 	if effect then
 		effect(player)
+		trySummon(player)
 	end
 end
 

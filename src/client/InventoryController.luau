@@ -6,6 +6,7 @@ local RunService = game:GetService("RunService")
 local ContextActionService = game:GetService("ContextActionService")
 
 local InventoryTypes = require(ReplicatedStorage.Shared.InventoryTypes)
+local CharacterTypes = require(ReplicatedStorage.Shared.CharacterTypes)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -45,8 +46,9 @@ local COLORS = {
 local function getItemDisplay(itemId: string)
 	local display = {
 		name = itemId,
-		icon = "",
+		iconText = string.sub(itemId, 1, 1):upper(),
 		color = Color3.fromRGB(200, 200, 200),
+		rarityTag = "",
 	}
 	if itemId == "common_dice" then
 		display.name = "Common Dice"
@@ -63,6 +65,15 @@ local function getItemDisplay(itemId: string)
 	elseif itemId == "legendary_dice" then
 		display.name = "Legendary Dice"
 		display.color = Color3.fromRGB(255, 200, 50)
+	else
+		local card = CharacterTypes.getCard(itemId)
+		if card then
+			display.name = card.Name
+			local rarity = card.tier or "Uncommon"
+			display.color = CharacterTypes.RARITY_COLORS[rarity] or Color3.fromRGB(200, 200, 200)
+			display.iconText = string.sub(card.Name, 1, 1):upper()
+			display.rarityTag = rarity
+		end
 	end
 	return display
 end
@@ -168,7 +179,7 @@ local function createInventoryItemButton(itemId: string, entry: InventoryTypes.I
 	iconLabel.Name = "IconLabel"
 	iconLabel.Size = UDim2.new(1, 0, 1, 0)
 	iconLabel.BackgroundTransparency = 1
-	iconLabel.Text = string.sub(itemId, 1, 1):upper()
+	iconLabel.Text = display.iconText
 	iconLabel.TextColor3 = COLORS.text
 	iconLabel.TextSize = 18
 	iconLabel.Font = Enum.Font.GothamBold
@@ -586,6 +597,10 @@ local function setupInput()
 						break
 					end
 				end
+			end
+
+			if not inventoryOpen and hotbar[selectedSlot] then
+				useSelectedSlot()
 			end
 		end
 	end)
