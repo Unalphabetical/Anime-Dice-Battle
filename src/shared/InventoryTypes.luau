@@ -22,6 +22,7 @@ export type ItemDefs = {[string]: ItemDef}
 
 local REMOTE_EVENT_NAME = "InventoryRemote"
 local HOTBAR_SLOTS = 9
+local DECK_SLOTS = 4
 
 local Methods = {
 	UseItem = "UseItem",
@@ -32,6 +33,10 @@ local Methods = {
 	UpdateHotbarSlot = "UpdateHotbarSlot",
 	ReturnToInventory = "ReturnToInventory",
 	SwapHotbarSlots = "SwapHotbarSlots",
+	UpdateDeckSlot = "UpdateDeckSlot",
+	ReturnDeckToInventory = "ReturnDeckToInventory",
+	SwapDeckSlots = "SwapDeckSlots",
+	GetDeck = "GetDeck",
 }
 
 local ITEM_DEFS: ItemDefs = {
@@ -136,6 +141,7 @@ local ITEM_DEFS: ItemDefs = {
 return {
 	REMOTE_EVENT_NAME = REMOTE_EVENT_NAME,
 	HOTBAR_SLOTS = HOTBAR_SLOTS,
+	DECK_SLOTS = DECK_SLOTS,
 	Methods = Methods,
 	ITEM_DEFS = ITEM_DEFS,
 }

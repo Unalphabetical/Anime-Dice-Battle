@@ -153,11 +153,15 @@ local function setupPlayer(player: Player)
 	local data = {
 		inventory = {},
 		hotbar = {},
+		deck = {},
 	}
 	playerData[player.UserId] = data
 
 	for i = 1, InventoryTypes.HOTBAR_SLOTS do
 		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, i, nil)
+	end
+	for i = 1, InventoryTypes.DECK_SLOTS do
+		RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateDeckSlot, i, nil)
 	end
 end
 
@@ -227,6 +231,59 @@ RemoteEvent.OnServerEvent:Connect(function(player, method, ...)
 			data.hotbar[slotB] = temp
 			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotA, data.hotbar[slotA])
 			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateHotbarSlot, slotB, data.hotbar[slotB])
+		end
+	elseif method == InventoryTypes.Methods.GetDeck then
+		if data then
+			RemoteEvent:FireClient(player, InventoryTypes.Methods.GetDeck, data.deck)
+		end
+	elseif method == InventoryTypes.Methods.UpdateDeckSlot then
+		if not data then return end
+		local slot, itemId = ...
+		if slot and slot >= 1 and slot <= InventoryTypes.DECK_SLOTS and itemId then
+			local invEntry = data.inventory[itemId]
+			if invEntry and invEntry.quantity > 0 then
+				local moveQty = invEntry.quantity
+				data.inventory[itemId] = nil
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.RemoveItem, itemId)
+
+				local slotData = data.deck[slot]
+				if slotData and slotData.itemId == itemId then
+					slotData.quantity += moveQty
+				else
+					data.deck[slot] = { itemId = itemId, quantity = moveQty }
+				end
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateDeckSlot, slot, data.deck[slot])
+			end
+		end
+	elseif method == InventoryTypes.Methods.ReturnDeckToInventory then
+		if not data then return end
+		local slot, itemId = ...
+		if slot and slot >= 1 and slot <= InventoryTypes.DECK_SLOTS and itemId then
+			local slotData = data.deck[slot]
+			if slotData and slotData.itemId == itemId then
+				local qty = slotData.quantity
+				data.deck[slot] = nil
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateDeckSlot, slot, nil)
+
+				local invEntry = data.inventory[itemId]
+				if invEntry then
+					invEntry.quantity += qty
+				else
+					data.inventory[itemId] = { quantity = qty }
+				end
+				RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateItem, itemId, data.inventory[itemId])
+			end
+		end
+	elseif method == InventoryTypes.Methods.SwapDeckSlots then
+		if not data then return end
+		local slotA, slotB = ...
+		if slotA and slotB and slotA >= 1 and slotA <= InventoryTypes.DECK_SLOTS
+			and slotB >= 1 and slotB <= InventoryTypes.DECK_SLOTS and slotA ~= slotB then
+			local temp = data.deck[slotA]
+			data.deck[slotA] = data.deck[slotB]
+			data.deck[slotB] = temp
+			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateDeckSlot, slotA, data.deck[slotA])
+			RemoteEvent:FireClient(player, InventoryTypes.Methods.UpdateDeckSlot, slotB, data.deck[slotB])
 		end
 	end
 end)
