@@ -14,6 +14,7 @@ local shopOpen = false
 local gui: ScreenGui?
 local shopPanel: Frame?
 local currencyLabel: TextLabel?
+local hudCurrencyLabel: TextLabel?
 local itemList: ScrollingFrame?
 
 local COLORS = {
@@ -164,8 +165,12 @@ end
 local function openShop(currency: number)
 	if not shopPanel then return end
 
+	local text = "Gold: " .. tostring(currency)
 	if currencyLabel then
-		currencyLabel.Text = "Gold: " .. tostring(currency)
+		currencyLabel.Text = text
+	end
+	if hudCurrencyLabel then
+		hudCurrencyLabel.Text = "$" .. tostring(currency)
 	end
 
 	rebuildItemList(currency)
@@ -177,12 +182,38 @@ local function openShop(currency: number)
 end
 
 local function updateCurrency(amount: number)
+	local text = "Gold: " .. tostring(amount)
 	if currencyLabel then
-		currencyLabel.Text = "Gold: " .. tostring(amount)
+		currencyLabel.Text = text
+	end
+	if hudCurrencyLabel then
+		hudCurrencyLabel.Text = "$" .. tostring(amount)
 	end
 	if shopOpen and gui and gui.Enabled then
 		rebuildItemList(amount)
 	end
+end
+
+local function setupHUD()
+	local hudGui = Instance.new("ScreenGui")
+	hudGui.Name = "CurrencyHUD"
+	hudGui.ResetOnSpawn = false
+	hudGui.Parent = playerGui
+
+	hudCurrencyLabel = Instance.new("TextLabel")
+	hudCurrencyLabel.Name = "CurrencyLabel"
+	hudCurrencyLabel.Size = UDim2.new(0, 180, 0, 50)
+	hudCurrencyLabel.Position = UDim2.new(0, 12, 1, -12)
+	hudCurrencyLabel.AnchorPoint = Vector2.new(0, 1)
+	hudCurrencyLabel.BackgroundTransparency = 1
+	hudCurrencyLabel.Text = "$0"
+	hudCurrencyLabel.TextColor3 = COLORS.gold
+	hudCurrencyLabel.TextSize = 40
+	hudCurrencyLabel.Font = Enum.Font.GothamBold
+	hudCurrencyLabel.TextXAlignment = Enum.TextXAlignment.Left
+	hudCurrencyLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+	hudCurrencyLabel.Parent = hudGui
 end
 
 local function setupUI()
@@ -326,6 +357,7 @@ local function setupRemoteListeners()
 end
 
 local function init()
+	setupHUD()
 	setupUI()
 	setupInput()
 	setupRemoteListeners()
