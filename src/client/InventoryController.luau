@@ -50,21 +50,10 @@ local function getItemDisplay(itemId: string)
 		color = Color3.fromRGB(200, 200, 200),
 		rarityTag = "",
 	}
-	if itemId == "common_dice" then
-		display.name = "Common Dice"
-		display.color = Color3.fromRGB(180, 180, 180)
-	elseif itemId == "uncommon_dice" then
-		display.name = "Uncommon Dice"
-		display.color = Color3.fromRGB(100, 200, 100)
-	elseif itemId == "rare_dice" then
-		display.name = "Rare Dice"
-		display.color = Color3.fromRGB(100, 180, 255)
-	elseif itemId == "epic_dice" then
-		display.name = "Epic Dice"
-		display.color = Color3.fromRGB(180, 100, 255)
-	elseif itemId == "legendary_dice" then
-		display.name = "Legendary Dice"
-		display.color = Color3.fromRGB(255, 200, 50)
+	local itemDef = InventoryTypes.ITEM_DEFS[itemId]
+	if itemDef then
+		display.name = itemDef.name
+		display.color = itemDef.color
 	else
 		local card = CharacterTypes.getCard(itemId)
 		if card then

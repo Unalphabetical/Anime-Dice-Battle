@@ -42,6 +42,50 @@ local itemEffects: {[string]: (player: Player) -> ()} = {
 		player:SetAttribute("LastDiceRoll", "legendary")
 		player:SetAttribute("DiceValue", math.random(1, 100))
 	end,
+	mythic_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "mythic")
+		player:SetAttribute("DiceValue", math.random(1, 200))
+	end,
+	godly_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "godly")
+		player:SetAttribute("DiceValue", math.random(1, 500))
+	end,
+	divine_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "divine")
+		player:SetAttribute("DiceValue", math.random(1, 1000))
+	end,
+	celestial_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "celestial")
+		player:SetAttribute("DiceValue", math.random(1, 2000))
+	end,
+	ethereal_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "ethereal")
+		player:SetAttribute("DiceValue", math.random(1, 5000))
+	end,
+	shadow_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "shadow")
+		player:SetAttribute("DiceValue", math.random(1, 10000))
+	end,
+	arcane_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "arcane")
+		player:SetAttribute("DiceValue", math.random(1, 25000))
+	end,
+	primordial_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "primordial")
+		player:SetAttribute("DiceValue", math.random(1, 50000))
+	end,
+	transcendent_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "transcendent")
+		player:SetAttribute("DiceValue", math.random(1, 100000))
+	end,
+	void_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "void")
+		player:SetAttribute("DiceValue", math.random(1, 500000))
+	end,
+	apex_dice = function(player: Player)
+		player:SetAttribute("LastDiceRoll", "apex")
+		player:SetAttribute("DiceValue", math.random(1, 1000000))
+	end,
 }
 
 local function giveItem(player: Player, itemId: string, quantity: number)

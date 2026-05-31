@@ -35,6 +35,50 @@ local SHOP_ITEMS: ShopDefs = {
 		itemId = "legendary_dice",
 		price = 5000,
 	},
+	mythic_dice = {
+		itemId = "mythic_dice",
+		price = 10000,
+	},
+	godly_dice = {
+		itemId = "godly_dice",
+		price = 25000,
+	},
+	divine_dice = {
+		itemId = "divine_dice",
+		price = 50000,
+	},
+	celestial_dice = {
+		itemId = "celestial_dice",
+		price = 100000,
+	},
+	ethereal_dice = {
+		itemId = "ethereal_dice",
+		price = 250000,
+	},
+	shadow_dice = {
+		itemId = "shadow_dice",
+		price = 500000,
+	},
+	arcane_dice = {
+		itemId = "arcane_dice",
+		price = 1000000,
+	},
+	primordial_dice = {
+		itemId = "primordial_dice",
+		price = 2500000,
+	},
+	transcendent_dice = {
+		itemId = "transcendent_dice",
+		price = 5000000,
+	},
+	void_dice = {
+		itemId = "void_dice",
+		price = 10000000,
+	},
+	apex_dice = {
+		itemId = "apex_dice",
+		price = 50000000,
+	},
 }
 
 local STARTING_CURRENCY = 200
