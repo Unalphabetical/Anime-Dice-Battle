@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 local ContextActionService = game:GetService("ContextActionService")
+local camera = workspace.CurrentCamera
 
 local InventoryTypes = require(ReplicatedStorage.Shared.InventoryTypes)
 local CharacterTypes = require(ReplicatedStorage.Shared.CharacterTypes)
@@ -48,6 +49,22 @@ local COLORS = {
 	drag = Color3.fromRGB(60, 120, 240),
 	sectionBg = Color3.fromRGB(20, 20, 32),
 }
+
+local REFERENCE_WIDTH = 1280
+local REFERENCE_HEIGHT = 720
+
+local function updateScale()
+	local viewportSize = camera.ViewportSize
+	local scale = math.min(
+		viewportSize.X / REFERENCE_WIDTH,
+		viewportSize.Y / REFERENCE_HEIGHT
+	)
+	scale = math.clamp(scale, 0.75, 2.0)
+	local uiScale = gui:FindFirstChildWhichIsA("UIScale")
+	if uiScale then
+		uiScale.Scale = scale
+	end
+end
 
 local function getItemDisplay(itemId: string)
 	local display = {
@@ -455,6 +472,13 @@ local function setupUI()
 	gui.Name = "InventoryGUI"
 	gui.ResetOnSpawn = false
 	gui.Parent = playerGui
+
+	local uiScale = Instance.new("UIScale")
+	uiScale.Name = "MainScale"
+	uiScale.Parent = gui
+
+	updateScale()
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateScale)
 
 	hotbarFrame = Instance.new("Frame")
 	hotbarFrame.Name = "Hotbar"
