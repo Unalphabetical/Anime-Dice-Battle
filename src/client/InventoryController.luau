@@ -138,6 +138,8 @@ local function createSlotFrame(slotIndex: number, parent: Instance): Frame
 	itemName.Font = Enum.Font.GothamBold
 	itemName.TextXAlignment = Enum.TextXAlignment.Center
 	itemName.TextYAlignment = Enum.TextYAlignment.Center
+	itemName.TextScaled = true
+	itemName.TextWrapped = true
 	itemName.Visible = false
 	itemName.Parent = icon
 
@@ -207,6 +209,8 @@ local function createDeckSlotFrame(slotIndex: number, parent: Instance): Frame
 	itemName.Font = Enum.Font.GothamBold
 	itemName.TextXAlignment = Enum.TextXAlignment.Center
 	itemName.TextYAlignment = Enum.TextYAlignment.Center
+	itemName.TextScaled = true
+	itemName.TextWrapped = true
 	itemName.Visible = false
 	itemName.Parent = icon
 
@@ -281,6 +285,8 @@ local function createInventoryItemButton(itemId: string, entry: InventoryTypes.I
 	itemName.Font = Enum.Font.GothamBold
 	itemName.TextXAlignment = Enum.TextXAlignment.Center
 	itemName.TextYAlignment = Enum.TextYAlignment.Top
+	itemName.TextScaled = true
+	itemName.TextWrapped = true
 	itemName.Parent = frame
 
 	local quantityLabel = Instance.new("TextLabel")
@@ -294,6 +300,7 @@ local function createInventoryItemButton(itemId: string, entry: InventoryTypes.I
 	quantityLabel.Font = Enum.Font.GothamMedium
 	quantityLabel.TextXAlignment = Enum.TextXAlignment.Right
 	quantityLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+	quantityLabel.TextScaled = true
 	quantityLabel.Parent = frame
 
 	local uipadding = Instance.new("UIPadding")
@@ -415,6 +422,11 @@ local function populateGrid(grid: ScrollingFrame, items: {[string]: InventoryTyp
 	end
 
 	if not next(items) then
+		local layout = grid:FindFirstChildWhichIsA("UIGridLayout")
+		if layout then
+			layout:Destroy()
+		end
+
 		local empty = Instance.new("TextLabel")
 		empty.Name = "EmptyLabel"
 		empty.Size = UDim2.new(1, 0, 1, 0)
@@ -423,10 +435,22 @@ local function populateGrid(grid: ScrollingFrame, items: {[string]: InventoryTyp
 		empty.TextColor3 = COLORS.muted
 		empty.TextSize = 16
 		empty.Font = Enum.Font.GothamMedium
+		empty.TextScaled = true
 		empty.TextXAlignment = Enum.TextXAlignment.Center
 		empty.TextYAlignment = Enum.TextYAlignment.Center
 		empty.Parent = grid
 		return
+	end
+
+	local layout = grid:FindFirstChildWhichIsA("UIGridLayout")
+	if not layout then
+		layout = Instance.new("UIGridLayout")
+		layout.CellSize = UDim2.new(0, 80, 0, 80)
+		layout.CellPadding = UDim2.new(0, 6, 0, 6)
+		layout.FillDirection = Enum.FillDirection.Horizontal
+		layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+		layout.VerticalAlignment = Enum.VerticalAlignment.Top
+		layout.Parent = grid
 	end
 
 	for itemId, entry in items do
