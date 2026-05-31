@@ -17,6 +17,46 @@ local currencyLabel: TextLabel?
 local hudCurrencyLabel: TextLabel?
 local itemList: ScrollingFrame?
 
+local SUFFIXES = {
+	"K", "M", "B", "T", "Q",
+	"Qi", "Sx", "Sp", "Oc", "No",
+	"Dc", "UDc", "DDc", "TDc", "QaDc",
+	"QiDc", "SxDc", "SpDc", "OcDc", "NoDc",
+	"Vg", "UVg", "DVg", "TVg", "QaVg",
+	"QiVg", "SxVg", "SpVg", "OcVg", "NoVg",
+	"Tg", "UTg", "DTg",
+}
+
+local function formatNumber(n: number): string
+	if n < 1000 then
+		return tostring(math.floor(n))
+	end
+
+	local tier = 0
+	local value = n
+	while value >= 1000 and tier < #SUFFIXES do
+		value /= 1000
+		tier += 1
+	end
+
+	if value >= 1000 then
+		local exp = math.floor(math.log10(n))
+		local mantissa = n / (10 ^ exp)
+		return string.format("%.1fe%d", mantissa, exp)
+	end
+
+	local whole = math.floor(value)
+	local decimal = math.floor((value - whole) * 100)
+
+	if decimal == 0 then
+		return tostring(whole) .. SUFFIXES[tier]
+	elseif decimal % 10 == 0 then
+		return tostring(whole) .. "." .. tostring(math.floor(decimal / 10)) .. SUFFIXES[tier]
+	end
+
+	return tostring(whole) .. "." .. tostring(decimal) .. SUFFIXES[tier]
+end
+
 local COLORS = {
 	background = Color3.fromRGB(25, 25, 35),
 	panelBg = Color3.fromRGB(20, 20, 30),
@@ -112,7 +152,7 @@ local function rebuildItemList(currency: number)
 		priceLabel.Size = UDim2.new(0, 80, 1, 0)
 		priceLabel.Position = UDim2.new(0, 190, 0, 0)
 		priceLabel.BackgroundTransparency = 1
-		priceLabel.Text = tostring(shopItem.price) .. "g"
+		priceLabel.Text = formatNumber(shopItem.price) .. "g"
 		priceLabel.TextColor3 = canAfford and COLORS.gold or COLORS.error
 		priceLabel.TextSize = 14
 		priceLabel.Font = Enum.Font.GothamBold
@@ -165,12 +205,12 @@ end
 local function openShop(currency: number)
 	if not shopPanel then return end
 
-	local text = "Gold: " .. tostring(currency)
+	local text = "Gold: " .. formatNumber(currency)
 	if currencyLabel then
 		currencyLabel.Text = text
 	end
 	if hudCurrencyLabel then
-		hudCurrencyLabel.Text = "$" .. tostring(currency)
+		hudCurrencyLabel.Text = "$" .. formatNumber(currency)
 	end
 
 	rebuildItemList(currency)
@@ -182,12 +222,12 @@ local function openShop(currency: number)
 end
 
 local function updateCurrency(amount: number)
-	local text = "Gold: " .. tostring(amount)
+	local text = "Gold: " .. formatNumber(amount)
 	if currencyLabel then
 		currencyLabel.Text = text
 	end
 	if hudCurrencyLabel then
-		hudCurrencyLabel.Text = "$" .. tostring(amount)
+		hudCurrencyLabel.Text = "$" .. formatNumber(amount)
 	end
 	if shopOpen and gui and gui.Enabled then
 		rebuildItemList(amount)
@@ -206,7 +246,7 @@ local function setupHUD()
 	hudCurrencyLabel.Position = UDim2.new(0, 12, 1, -12)
 	hudCurrencyLabel.AnchorPoint = Vector2.new(0, 1)
 	hudCurrencyLabel.BackgroundTransparency = 1
-	hudCurrencyLabel.Text = "$0"
+	hudCurrencyLabel.Text = "$" .. formatNumber(0)
 	hudCurrencyLabel.TextColor3 = COLORS.gold
 	hudCurrencyLabel.TextSize = 40
 	hudCurrencyLabel.Font = Enum.Font.GothamBold
@@ -280,7 +320,7 @@ local function setupUI()
 	currencyLabel.Size = UDim2.new(1, -20, 0, 30)
 	currencyLabel.Position = UDim2.new(0, 10, 0, 44)
 	currencyLabel.BackgroundTransparency = 1
-	currencyLabel.Text = "Gold: 0"
+	currencyLabel.Text = "Gold: " .. formatNumber(0)
 	currencyLabel.TextColor3 = COLORS.gold
 	currencyLabel.TextSize = 16
 	currencyLabel.Font = Enum.Font.GothamBold
